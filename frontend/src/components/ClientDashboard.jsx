@@ -3,9 +3,11 @@ import TradingConsole from './TradingConsole';
 import VaultWallet from './VaultWallet';
 import LangToggle from './LangToggle';
 import translations from '../i18n/translations';
+import useMediaQuery from '../hooks/useMediaQuery';
 import { API_BASE } from '../config';
 
 export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
+  const isMobile = useMediaQuery('(max-width: 820px)');
   const [activeClientTab, setActiveClientTab] = useState('OVERVIEW');
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [myWithdrawals, setMyWithdrawals] = useState([]);
@@ -97,18 +99,18 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
     <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', color: '#f8fafc', display: 'flex', flexDirection: 'column', width: '100vw', overflowX: 'hidden' }}>
       
       {/* Header */}
-      <header style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '12px 35px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '60px', boxSizing: 'border-box', position: 'sticky', top: 0, zIndex: 200 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <header style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: isMobile ? '12px 16px' : '12px 35px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: isMobile ? 'auto' : '60px', boxSizing: 'border-box', position: 'sticky', top: 0, zIndex: 200, gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
           <img src="/tradeforge_logo.png" alt="Logo" style={{ width: '34px', height: '34px', borderRadius: '8px', boxShadow: '0 0 12px rgba(234, 179, 8, 0.25)' }} />
           <div>
-            <div style={{ fontWeight: '800', fontSize: '16px', color: '#ffffff', letterSpacing: '-0.3px' }}>
+            <div style={{ fontWeight: '800', fontSize: '16px', color: '#ffffff', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>
               TRADEFORGE<span style={{ color: '#eab308' }}>.PRO</span>
             </div>
-            <div style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '0.8px' }}>{t.portalLabel}</div>
+            <div style={{ fontSize: '9px', color: '#64748b', fontWeight: '700', letterSpacing: '0.8px', display: isMobile ? 'none' : 'block' }}>{t.portalLabel}</div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '25px', alignItems: 'center' }}>
+        <div style={{ display: isMobile ? 'none' : 'flex', gap: '25px', alignItems: 'center' }}>
           <div>
             <span style={{ color: '#64748b', fontSize: '10px', fontWeight: '700' }}>{t.walletLabel}</span>{' '}
             <strong className="mono-font" style={{ color: '#ffffff', fontSize: '13px' }}>${broker.walletBalance.toLocaleString('en-US', {minimumFractionDigits: 2})} USDT</strong>
@@ -124,7 +126,7 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <LangToggle lang={lang} setLang={setLang} />
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: 'right', display: isMobile ? 'none' : 'block' }}>
             <div style={{ fontWeight: '700', fontSize: '12px', color: '#ffffff' }}>{userName}</div>
             <div style={{ fontSize: '10px', color: '#94a3b8' }}>{userEmail}</div>
           </div>
@@ -135,7 +137,7 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
       </header>
 
       {/* Tab Bar */}
-      <div style={{ background: '#0b0f19', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '0 35px', display: 'flex', gap: '8px' }}>
+      <div style={{ background: '#0b0f19', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: isMobile ? '0 12px' : '0 35px', display: 'flex', gap: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
         <button onClick={() => setActiveClientTab('OVERVIEW')} style={tabStyle('OVERVIEW')}>{t.tab1}</button>
         <button onClick={() => setActiveClientTab('TERMINAL')} style={tabStyle('TERMINAL')}>{t.tab2}</button>
         <button onClick={() => setActiveClientTab('STATEMENTS')} style={tabStyle('STATEMENTS')}>{t.tab4}</button>
@@ -147,23 +149,23 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
 
         {/* OVERVIEW */}
         {activeClientTab === 'OVERVIEW' && (
-          <div style={{ padding: '35px', maxWidth: '1280px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+          <div style={{ padding: isMobile ? '20px 16px' : '35px', maxWidth: '1280px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
             
-            <div className="glass-card" style={{ padding: '30px', marginBottom: '30px', background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%)', border: '1px solid rgba(234, 179, 8, 0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="glass-card" style={{ padding: isMobile ? '22px' : '30px', marginBottom: '30px', background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%)', border: '1px solid rgba(234, 179, 8, 0.25)', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', gap: '16px' }}>
               <div>
-                <h1 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '800', color: '#ffffff' }}>
+                <h1 style={{ margin: '0 0 8px 0', fontSize: isMobile ? '22px' : '28px', fontWeight: '800', color: '#ffffff' }}>
                   {t.welcomeTitle}, {userName}!
                 </h1>
                 <p style={{ margin: 0, color: '#cbd5e1', fontSize: '14px' }}>{t.welcomeText}</p>
               </div>
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <button onClick={() => setActiveClientTab('TERMINAL')} className="glow-btn-primary" style={{ padding: '12px 24px', fontSize: '13px' }}>{t.viewMonitorBtn}</button>
                 <button onClick={() => setIsWalletOpen(true)} className="glow-btn-cyan" style={{ padding: '12px 20px', fontSize: '13px' }}>{t.depositBtn}</button>
               </div>
             </div>
 
             {/* Stats Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '35px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '20px', marginBottom: '35px' }}>
               <div className="glass-card" style={{ padding: '22px' }}>
                 <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase' }}>{t.card1Label}</div>
                 <div className="mono-font" style={{ fontSize: '24px', fontWeight: '800', color: '#ffffff', marginTop: '6px' }}>${broker.walletBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
@@ -220,7 +222,7 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
             )}
 
             {/* Activity + Summary */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '25px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.4fr 1fr', gap: '25px' }}>
               <div className="glass-card" style={{ padding: '25px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>{t.activityTitle}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -281,9 +283,9 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
 
         {/* STATEMENTS — Withdrawal & Payout History */}
         {activeClientTab === 'STATEMENTS' && (
-          <div style={{ padding: '35px', maxWidth: '1100px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
-            <div className="glass-card" style={{ padding: '35px', background: 'rgba(15, 23, 42, 0.95)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '25px' }}>
+          <div style={{ padding: isMobile ? '20px 16px' : '35px', maxWidth: '1100px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+            <div className="glass-card" style={{ padding: isMobile ? '22px' : '35px', background: 'rgba(15, 23, 42, 0.95)' }}>
+              <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '25px' }}>
                 <div>
                   <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#ffffff' }}>{t.statementsWithdrawalsTitle}</h2>
                   <span style={{ fontSize: '11px', color: '#94a3b8' }}>{t.statementsWithdrawalsSub}</span>
@@ -331,8 +333,8 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
 
         {/* PROFILE */}
         {activeClientTab === 'PROFILE' && (
-          <div style={{ padding: '35px', maxWidth: '1100px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
-            <div className="glass-card" style={{ padding: '35px', background: 'rgba(15, 23, 42, 0.95)' }}>
+          <div style={{ padding: isMobile ? '20px 16px' : '35px', maxWidth: '1100px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+            <div className="glass-card" style={{ padding: isMobile ? '22px' : '35px', background: 'rgba(15, 23, 42, 0.95)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '25px' }}>
                 <div style={{ width: '48px', height: '48px', background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>👤</div>
                 <div>

@@ -43,7 +43,7 @@ export default function VaultWallet({ isOpen, onClose, onDepositConfirmed, sessi
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
       
-      <div className="glass-card" style={{ background: 'rgba(15, 23, 42, 0.97)', border: '1px solid rgba(255, 255, 255, 0.12)', width: '440px', padding: '30px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.9), 0 0 30px rgba(234,179,8,0.15)' }}>
+      <div className="glass-card" style={{ background: 'rgba(15, 23, 42, 0.97)', border: '1px solid rgba(255, 255, 255, 0.12)', width: '100%', maxWidth: '440px', padding: '24px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 30px 60px -15px rgba(0,0,0,0.9), 0 0 30px rgba(234,179,8,0.15)' }}>
         
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '14px' }}>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import translations from '../i18n/translations';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function TradingConsole({ 
   balance, equity, marginUsed, pnl, rates, positions, onCloseOut, onOpenDeposit, onGoBackToStats, lang
 }) {
+  const isMobile = useMediaQuery('(max-width: 820px)');
   const [selectedAsset, setSelectedAsset] = useState('BTCUSDT');
   const [points, setPoints] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,16 +34,16 @@ export default function TradingConsole({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', height: '100vh', backgroundColor: '#0f172a', color: '#f8fafc', fontSize: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', minHeight: '100vh', backgroundColor: '#0f172a', color: '#f8fafc', fontSize: '12px' }}>
       
       {/* Header */}
-      <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '52px', boxSizing: 'border-box' }}>
+      <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: isMobile ? '10px 14px' : '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src="/tradeforge_logo.png" alt="Logo" style={{ width: '30px', height: '30px', borderRadius: '6px' }} />
           <span style={{ fontWeight: '800', fontSize: '15px', color: '#ffffff' }}>TradeForge<span style={{ color: '#eab308' }}>.pro</span></span>
-          <span style={{ fontSize: '10px', background: 'rgba(234,179,8,0.15)', color: '#eab308', border: '1px solid rgba(234,179,8,0.3)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700' }}>{t.badge}</span>
+          <span style={{ fontSize: '10px', background: 'rgba(234,179,8,0.15)', color: '#eab308', border: '1px solid rgba(234,179,8,0.3)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700', display: isMobile ? 'none' : 'inline-block' }}>{t.badge}</span>
         </div>
-        <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
+        <div style={{ display: isMobile ? 'none' : 'flex', gap: '28px', alignItems: 'center' }}>
           {[
             { label: t.walletLabel, value: `$${balance.toLocaleString('en-US', {minimumFractionDigits:2})} USDT`, color: '#ffffff' },
             { label: t.equityLabel, value: `$${equity.toLocaleString('en-US', {minimumFractionDigits:2})} USDT`, color: '#10b981' },
@@ -61,10 +63,10 @@ export default function TradingConsole({
       </div>
 
       {/* Main Layout */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: isMobile ? 'visible' : 'hidden' }}>
         
         {/* Left: Watchlist */}
-        <div style={{ width: '250px', backgroundColor: '#0b0f19', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: isMobile ? '100%' : '250px', maxHeight: isMobile ? '240px' : 'none', backgroundColor: '#0b0f19', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '12px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             <input type="text" placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ width: '100%', padding: '8px 10px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', color: '#fff', fontSize: '11px', outline: 'none' }} />
           </div>
@@ -97,7 +99,7 @@ export default function TradingConsole({
               ))}
             </div>
           </div>
-          <div style={{ flex: 1, width: '100%', position: 'relative', background: 'radial-gradient(circle at bottom, rgba(234,179,8,0.06) 0%, transparent 70%)', overflow: 'hidden' }}>
+          <div style={{ flex: 1, width: '100%', minHeight: isMobile ? '340px' : '0', position: 'relative', background: 'radial-gradient(circle at bottom, rgba(234,179,8,0.06) 0%, transparent 70%)', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(4,1fr)' }}>
               {[...Array(24)].map((_, i) => <div key={i} style={{ borderRight: '1px dashed rgba(255,255,255,0.03)', borderBottom: '1px dashed rgba(255,255,255,0.03)' }}></div>)}
             </div>
@@ -147,7 +149,7 @@ export default function TradingConsole({
         </div>
 
         {/* Right: Managed Account Panel */}
-        <div style={{ width: '280px', backgroundColor: '#0b0f19', borderLeft: '1px solid rgba(255,255,255,0.08)', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+        <div style={{ width: isMobile ? '100%' : '280px', backgroundColor: '#0b0f19', borderLeft: isMobile ? 'none' : '1px solid rgba(255,255,255,0.08)', borderTop: isMobile ? '1px solid rgba(255,255,255,0.08)' : 'none', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
           <div>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', fontWeight: '800' }}>{t.sidebarTitle}</h3>
             <div style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.25)', padding: '14px', borderRadius: '8px', marginBottom: '20px' }}>

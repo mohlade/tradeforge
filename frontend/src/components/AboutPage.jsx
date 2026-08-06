@@ -1,10 +1,12 @@
 import React from 'react';
 import translations from '../i18n/translations';
 import LangToggle from './LangToggle';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function AboutPage({ onNavigate, lang, setLang }) {
   const t = translations[lang].about;
   const nav = translations[lang].nav;
+  const isMobile = useMediaQuery('(max-width: 820px)');
 
   const stats = [
     { value: t.stat1Value, label: t.stat1Label, color: '#ffffff' },
@@ -30,7 +32,7 @@ export default function AboutPage({ onNavigate, lang, setLang }) {
     <div style={{ background: '#0f172a', minHeight: '100vh', color: '#f8fafc', overflowX: 'hidden' }}>
       
       {/* Sticky Header */}
-      <nav style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '14px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: isMobile ? '12px 16px' : '14px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
         <div onClick={() => onNavigate('MARKETING_HOME')} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
           <img src="/tradeforge_logo.png" alt="TradeForge Pro Logo" style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 0 15px rgba(234, 179, 8, 0.2)' }} />
           <div>
@@ -49,11 +51,11 @@ export default function AboutPage({ onNavigate, lang, setLang }) {
       </nav>
 
       {/* Hero */}
-      <div style={{ padding: '80px 40px', textAlign: 'center', background: 'radial-gradient(circle at 15% 20%, rgba(234, 179, 8, 0.06) 0%, transparent 40%), radial-gradient(circle at 85% 80%, rgba(56, 189, 248, 0.06) 0%, transparent 40%)' }}>
+      <div style={{ padding: isMobile ? '48px 20px' : '80px 40px', textAlign: 'center', background: 'radial-gradient(circle at 15% 20%, rgba(234, 179, 8, 0.06) 0%, transparent 40%), radial-gradient(circle at 85% 80%, rgba(56, 189, 248, 0.06) 0%, transparent 40%)' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.25)', padding: '6px 14px', borderRadius: '20px', fontSize: '11px', color: '#eab308', fontWeight: '700', marginBottom: '22px' }}>
           <span className="pulse-dot"></span> {t.badge}
         </div>
-        <h1 style={{ fontSize: '42px', fontWeight: '800', letterSpacing: '-1.5px', margin: '0 0 16px 0' }}>
+        <h1 style={{ fontSize: isMobile ? '30px' : '42px', fontWeight: '800', letterSpacing: '-1.5px', margin: '0 0 16px 0' }}>
           {t.title1} <span style={{ color: '#eab308' }}>{t.title2}</span>
         </h1>
         <p style={{ color: '#94a3b8', fontSize: '16px', lineHeight: '1.7', maxWidth: '640px', margin: '0 auto 0 auto' }}>
@@ -62,8 +64,8 @@ export default function AboutPage({ onNavigate, lang, setLang }) {
       </div>
 
       {/* Stats Band */}
-      <div style={{ padding: '35px 40px', background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ padding: isMobile ? '24px 16px' : '35px 40px', background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? '16px' : '24px', maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
           {stats.map((s, i) => (
             <div key={i}>
               <div className="mono-font" style={{ fontSize: '26px', fontWeight: '800', color: s.color }}>{s.value}</div>
@@ -74,16 +76,16 @@ export default function AboutPage({ onNavigate, lang, setLang }) {
       </div>
 
       {/* Mission + Values */}
-      <div style={{ padding: '80px 40px', maxWidth: '1150px', margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '48px 20px' : '80px 40px', maxWidth: '1150px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <h2 style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 12px 0' }}>{t.valuesTitle}</h2>
           <p style={{ color: '#94a3b8', fontSize: '15px', maxWidth: '560px', margin: '0 auto' }}>
             {t.valuesSub}
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '24px' }}>
           {values.map((v, i) => (
-            <div key={i} className="glass-card" style={{ padding: '28px', display: 'flex', gap: '18px' }}>
+            <div key={i} className="glass-card" style={{ padding: isMobile ? '20px' : '28px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '12px' : '18px' }}>
               <div style={{ width: '52px', height: '52px', minWidth: '52px', background: `${v.color}22`, border: `1px solid ${v.color}55`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>{v.icon}</div>
               <div>
                 <h4 style={{ margin: '0 0 8px 0', fontSize: '17px', fontWeight: '700', color: '#ffffff' }}>{v.title}</h4>
@@ -95,13 +97,13 @@ export default function AboutPage({ onNavigate, lang, setLang }) {
       </div>
 
       {/* How It Works */}
-      <div style={{ padding: '80px 40px', background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ padding: isMobile ? '48px 20px' : '80px 40px', background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '50px' }}>
             <h2 style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 12px 0' }}>{t.howTitle}</h2>
             <p style={{ color: '#94a3b8', fontSize: '15px' }}>{t.howSub}</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
             {steps.map((s, i) => (
               <div key={i} className="glass-card" style={{ padding: '30px', position: 'relative' }}>
                 <div className="mono-font" style={{ fontSize: '38px', fontWeight: '800', color: 'rgba(234, 179, 8, 0.25)', marginBottom: '14px' }}>{s.step}</div>
@@ -114,7 +116,7 @@ export default function AboutPage({ onNavigate, lang, setLang }) {
       </div>
 
       {/* CTA */}
-      <div style={{ padding: '70px 40px', textAlign: 'center' }}>
+      <div style={{ padding: isMobile ? '48px 20px' : '70px 40px', textAlign: 'center' }}>
         <h2 style={{ fontSize: '28px', fontWeight: '800', margin: '0 0 12px 0' }}>{t.ctaTitle}</h2>
         <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 28px 0' }}>{t.ctaText}</p>
         <button onClick={() => onNavigate('KYC_GATE')} className="glow-btn-primary" style={{ padding: '14px 36px', fontSize: '14px' }}>
@@ -123,7 +125,7 @@ export default function AboutPage({ onNavigate, lang, setLang }) {
       </div>
 
       {/* Footer */}
-      <footer style={{ background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '30px 40px', color: '#64748b', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <footer style={{ background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', padding: isMobile ? '24px 16px' : '30px 40px', color: '#64748b', fontSize: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/tradeforge_logo.png" alt="Logo" style={{ width: '22px', height: '22px', borderRadius: '4px' }} />
           <span>{t.footer}</span>

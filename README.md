@@ -58,6 +58,8 @@ The SQLite database persists in `./data/tradeforge.db`.
 | `ADMIN_PASSWORD` | `AdminPass123!`          | Admin portal login password                   |
 | `SESSION_TTL_HOURS` | `168`                  | Session lifetime before re-login (hours). Sessions are stored in SQLite, so logins survive server restarts. |
 | `DATABASE_PATH`  | `backend/tradeforge.db`  | Absolute path to the SQLite database file     |
+| `TURSO_DATABASE_URL` | —                      | Turso Cloud DB URL. When set **together with** `TURSO_AUTH_TOKEN`, the app uses Turso instead of the local SQLite file (recommended for Vercel). |
+| `TURSO_AUTH_TOKEN` | —                       | Turso Cloud auth token (create via Turso dashboard) |
 | `VITE_API_URL`   | dev: `http://127.0.0.1:8000` | Backend base URL (frontend, dev only)    |
 
 Copy `.env.example` to `.env` at the repo root to override any backend value.

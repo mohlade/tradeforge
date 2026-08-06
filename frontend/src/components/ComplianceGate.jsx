@@ -66,6 +66,18 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
       const result = await res.json();
       if (!res.ok) throw new Error(result.detail || 'Registration failed.');
       setPendingNotice(result.message || t.registerPending);
+      const empty = {
+        email: '', password: '', first_name: '', last_name: '', date_of_birth: '',
+        phone: '', country: '', city: '', zip_code: '', address: '',
+        id_document_type: '', documents_received: 'NO'
+      };
+      setDocFiles({ id: null, address: null, selfie: null });
+      setTimeout(() => {
+        setAuthMode('LOGIN');
+        setRegisterStep(1);
+        setFormData(empty);
+        setPendingNotice('');
+      }, 2200);
     } catch (err) {
       setError(err.message);
     }

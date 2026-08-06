@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import translations from '../i18n/translations';
 import LangToggle from './LangToggle';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function ContactPage({ onNavigate, lang, setLang }) {
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const t = translations[lang].contact;
   const nav = translations[lang].nav;
+  const isMobile = useMediaQuery('(max-width: 820px)');
 
   const methods = [
     { icon: t.method1Icon, label: t.method1Label, value: t.method1Value, color: '#eab308' },
@@ -26,7 +28,7 @@ export default function ContactPage({ onNavigate, lang, setLang }) {
     <div style={{ background: '#0f172a', minHeight: '100vh', color: '#f8fafc', overflowX: 'hidden' }}>
       
       {/* Sticky Header */}
-      <nav style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '14px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: isMobile ? '12px 16px' : '14px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
         <div onClick={() => onNavigate('MARKETING_HOME')} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
           <img src="/tradeforge_logo.png" alt="TradeForge Pro Logo" style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 0 15px rgba(234, 179, 8, 0.2)' }} />
           <div>
@@ -45,19 +47,19 @@ export default function ContactPage({ onNavigate, lang, setLang }) {
       </nav>
 
       {/* Hero */}
-      <div style={{ padding: '60px 40px 40px 40px', textAlign: 'center', background: 'radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.06) 0%, transparent 50%)' }}>
+      <div style={{ padding: isMobile ? '48px 20px 32px 20px' : '60px 40px 40px 40px', textAlign: 'center', background: 'radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.06) 0%, transparent 50%)' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.25)', padding: '6px 14px', borderRadius: '20px', fontSize: '11px', color: '#eab308', fontWeight: '700', marginBottom: '20px' }}>
           <span className="pulse-dot"></span> {t.badge}
         </div>
-        <h1 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-1px', margin: '0 0 14px 0' }}>{t.title}</h1>
+        <h1 style={{ fontSize: isMobile ? '30px' : '36px', fontWeight: '800', letterSpacing: '-1px', margin: '0 0 14px 0' }}>{t.title}</h1>
         <p style={{ color: '#94a3b8', fontSize: '15px', maxWidth: '540px', margin: '0 auto' }}>
           {t.subtitle}
         </p>
       </div>
 
       {/* Contact Methods */}
-      <div style={{ padding: '10px 40px 30px 40px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '18px', maxWidth: '1100px', margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '10px 16px 24px 16px' : '10px 40px 30px 40px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '18px', maxWidth: '1100px', margin: '0 auto' }}>
           {methods.map((c, i) => (
             <div key={i} className="glass-card" style={{ padding: '22px', textAlign: 'center' }}>
               <div style={{ fontSize: '26px', marginBottom: '10px' }}>{c.icon}</div>
@@ -69,11 +71,11 @@ export default function ContactPage({ onNavigate, lang, setLang }) {
       </div>
 
       {/* Form + FAQ */}
-      <div style={{ padding: '30px 40px 70px 40px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: '28px', maxWidth: '1100px', margin: '0 auto', alignItems: 'start' }}>
+      <div style={{ padding: isMobile ? '24px 16px 56px 16px' : '30px 40px 70px 40px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.15fr 1fr', gap: '28px', maxWidth: '1100px', margin: '0 auto', alignItems: 'start' }}>
 
           {/* Inquiry Form */}
-          <div className="glass-card" style={{ padding: '34px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <div className="glass-card" style={{ padding: isMobile ? '22px' : '34px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
             {submitted ? (
               <div style={{ textAlign: 'center', padding: '40px 0' }}>
                 <div style={{ fontSize: '52px', marginBottom: '16px' }}>✉️</div>
@@ -97,7 +99,7 @@ export default function ContactPage({ onNavigate, lang, setLang }) {
                   {t.subjects.map((s, i) => <option key={i}>{s}</option>)}
                 </select>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', margin: '16px 0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', margin: '16px 0' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '10px', color: '#64748b', fontWeight: '800', marginBottom: '6px', textTransform: 'uppercase' }}>{t.nameLabel}</label>
                     <input type="text" required placeholder={t.namePlaceholder} style={inputStyle} />
@@ -140,7 +142,7 @@ export default function ContactPage({ onNavigate, lang, setLang }) {
       </div>
 
       {/* Footer */}
-      <footer style={{ background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '30px 40px', color: '#64748b', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <footer style={{ background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', padding: isMobile ? '24px 16px' : '30px 40px', color: '#64748b', fontSize: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/tradeforge_logo.png" alt="Logo" style={{ width: '22px', height: '22px', borderRadius: '4px' }} />
           <span>{t.footer}</span>

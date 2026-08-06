@@ -7,6 +7,18 @@ import tempfile
 
 DB_PATH = os.getenv("DATABASE_PATH") or os.path.join(os.path.dirname(__file__), "tradeforge.db")
 
+TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL") or ""
+TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN") or ""
+
+try:
+    import turso_serverless
+    HAS_TURSO = True
+except ImportError:
+    turso_serverless = None
+    HAS_TURSO = False
+
+USE_TURSO = bool(HAS_TURSO and TURSO_DATABASE_URL and TURSO_AUTH_TOKEN)
+
 def _writable_db_path():
     try:
         with open(DB_PATH, "a", encoding="utf-8"):
@@ -14,6 +26,14 @@ def _writable_db_path():
         return DB_PATH
     except OSError:
         return os.path.join(tempfile.gettempdir(), "tradeforge.db")
+
+def _turso_row_factory(cursor, row=None):
+    if row is None:
+        row = cursor
+        cursor = None
+    if cursor is None or getattr(cursor, "description", None) is None:
+        return row
+    return {col[0]: row[i] for i, col in enumerate(cursor.description)}
 
 PBKDF2_ITERATIONS = 100000
 
@@ -37,6 +57,10 @@ def verify_password(password, stored):
         return False
 
 def get_connection():
+    if USE_TURSO:
+        conn = turso_serverless.connect(TURSO_DATABASE_URL, auth_token=TURSO_AUTH_TOKEN)
+        conn.row_factory = _turso_row_factory
+        return conn
     conn = sqlite3.connect(_writable_db_path())
     conn.row_factory = sqlite3.Row
     return conn

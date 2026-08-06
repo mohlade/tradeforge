@@ -27,19 +27,25 @@ function AppRoutes() {
 
   // Global language state shared across all pages
   const [lang, setLang] = useState('EN');
+  const [restoringSession, setRestoringSession] = useState(true);
 
   // On first load, restore a valid persisted session so a refresh
   // keeps the user logged in instead of bouncing back to the home page.
+  // Uses sessionStorage: the login survives a refresh in the same tab,
+  // but is cleared when the tab/window is closed, so returning visitors
+  // must sign in again.
   useEffect(() => {
     let saved;
     try {
-      saved = JSON.parse(localStorage.getItem(SESSION_KEY));
+      saved = JSON.parse(sessionStorage.getItem(SESSION_KEY));
     } catch {
-      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      setRestoringSession(false);
       return;
     }
     if (!saved || !saved.email || !saved.token) {
-      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      setRestoringSession(false);
       return;
     }
     fetch(`${API_BASE}/api/auth/session`, {
@@ -51,10 +57,14 @@ function AppRoutes() {
           broker.setSession(data.data.email, saved.token);
           broker.hydrateWalletBalance(data.data.buying_power);
         } else {
-          localStorage.removeItem(SESSION_KEY);
+          sessionStorage.removeItem(SESSION_KEY);
         }
+        setRestoringSession(false);
       })
-      .catch(() => localStorage.removeItem(SESSION_KEY));
+      .catch(() => {
+        sessionStorage.removeItem(SESSION_KEY);
+        setRestoringSession(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -67,7 +77,7 @@ function AppRoutes() {
   const handleVerified = (email, buyingPower, token) => {
     broker.setSession(email, token);
     if (buyingPower != null) broker.hydrateWalletBalance(buyingPower);
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token }));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, token }));
     navigate('/portal');
   };
 
@@ -75,17 +85,29 @@ function AppRoutes() {
   // then return to the marketing home so the gate protects everything again.
   const handleLogOut = () => {
     let saved;
-    try { saved = JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { /* ignore */ }
+    try { saved = JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { /* ignore */ }
     if (saved && saved.token) {
       fetch(`${API_BASE}/api/auth/logout`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${saved.token}` }
       }).catch(() => { /* best-effort */ });
     }
-    localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
     broker.resetBrokerSession();
     navigate('/');
   };
+
+  if (restoringSession) {
+    return (
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f172a' }}>
+        <img src="/tradeforge_logo.png" alt="TradeForge Pro" style={{ width: '60px', height: '60px', borderRadius: '12px', marginBottom: '16px', boxShadow: '0 0 20px rgba(234, 179, 8, 0.25)' }} />
+        <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '700', letterSpacing: '1.5px' }}>
+          TRADEFORGE<span style={{ color: '#eab308' }}>.PRO</span>
+        </div>
+        <div className="mono-font" style={{ marginTop: '14px', fontSize: '11px', color: '#64748b' }}>restoring session…</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../config';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function AdminPortal({ onNavigate, brokerState }) {
+  const isMobile = useMediaQuery('(max-width: 820px)');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [adminAuthData, setAdminAuthData] = useState({ email: '', password: '' });
@@ -302,7 +304,7 @@ export default function AdminPortal({ onNavigate, brokerState }) {
   );
 
   return (
-    <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', color: '#f8fafc', padding: '30px 40px', boxSizing: 'border-box' }}>
+    <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', color: '#f8fafc', padding: isMobile ? '20px 14px' : '30px 40px', boxSizing: 'border-box' }}>
       
       {/* Top Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '20px', marginBottom: '30px' }}>
@@ -420,7 +422,7 @@ export default function AdminPortal({ onNavigate, brokerState }) {
                     placeholder="Filter by customer name or email..." 
                     value={searchFilter} 
                     onChange={e => setSearchFilter(e.target.value)} 
-                    style={{ width: '280px', padding: '10px 14px', background: '#0b0f19', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }} 
+                    style={{ width: isMobile ? '100%' : '280px', padding: '10px 14px', background: '#0b0f19', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: '#fff', fontSize: '12px', outline: 'none' }} 
                   />
                 </div>
               </div>
