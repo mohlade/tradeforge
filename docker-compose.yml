@@ -1,0 +1,13 @@
+services:
+  tradeforge:
+    build: .
+    container_name: tradeforge-pro
+    ports:
+      - "8000:8000"
+    environment:
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@tradeforge.pro}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-AdminPass123!}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-168}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

@@ -1,0 +1,6 @@
+const devApi = 'http://127.0.0.1:8000';
+
+// In development (vite on :3000) the API runs on a separate origin.
+// In production the backend serves the built SPA from the same origin,
+// so a relative path avoids hard-coding the host.
+export const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? devApi : '');
