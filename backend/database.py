@@ -3,8 +3,17 @@ import os
 import time
 import hashlib
 import secrets
+import tempfile
 
 DB_PATH = os.getenv("DATABASE_PATH") or os.path.join(os.path.dirname(__file__), "tradeforge.db")
+
+def _writable_db_path():
+    try:
+        with open(DB_PATH, "a", encoding="utf-8"):
+            pass
+        return DB_PATH
+    except OSError:
+        return os.path.join(tempfile.gettempdir(), "tradeforge.db")
 
 PBKDF2_ITERATIONS = 100000
 
@@ -28,7 +37,7 @@ def verify_password(password, stored):
         return False
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(_writable_db_path())
     conn.row_factory = sqlite3.Row
     return conn
 
