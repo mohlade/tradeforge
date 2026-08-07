@@ -32,6 +32,7 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    if (isScanning) return;
     setIsScanning(true);
     setError('');
     setPendingNotice('');
@@ -55,10 +56,12 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+    if (isScanning) return;
     if (formData.password.length < 8) { setError(t.errPassword); setIsScanning(false); return; }
     const uploadPayload = { ...formData, documents_received: 'YES' };
     setError('');
     setPendingNotice('');
+    setIsScanning(true);
     try {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
@@ -79,9 +82,12 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
         setRegisterStep(1);
         setFormData(empty);
         setPendingNotice('');
+        setError('');
       }, 2200);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsScanning(false);
     }
   };
 
@@ -162,8 +168,8 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
               <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', fontWeight: '700', marginBottom: '6px' }}>{t.labelPassword}</label>
               <input type="password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} style={inputStyle} />
             </div>
-            <button type="submit" className="glow-btn-primary" style={{ width: '100%', padding: '13px', fontSize: '13px', letterSpacing: '0.5px' }}>
-              {t.loginBtn}
+            <button type="submit" className="glow-btn-primary" style={{ width: '100%', padding: '13px', fontSize: '13px', letterSpacing: '0.5px', opacity: isScanning ? 0.6 : 1, cursor: isScanning ? 'not-allowed' : 'pointer' }} disabled={isScanning}>
+              {isScanning ? 'Verifying…' : t.loginBtn}
             </button>
           </form>
         )}
@@ -292,7 +298,9 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
                   <div style={{ fontSize: '9px', color: '#64748b', lineHeight: '1.5', marginBottom: '14px' }}>{t.docNote}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <button type="button" onClick={goBackStep} style={{ padding: '13px', background: 'rgba(255,255,255,0.06)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '7px', fontWeight: '700', cursor: 'pointer', fontSize: '12px' }}>← {t.backBtn}</button>
-                    <button type="submit" className="glow-btn-primary" style={{ padding: '13px', fontSize: '12px', letterSpacing: '0.5px' }}>{t.registerBtn}</button>
+                    <button type="submit" className="glow-btn-primary" style={{ padding: '13px', fontSize: '12px', letterSpacing: '0.5px', opacity: isScanning ? 0.6 : 1, cursor: isScanning ? 'not-allowed' : 'pointer' }} disabled={isScanning}>
+                      {isScanning ? 'Submitting…' : t.registerBtn}
+                    </button>
                   </div>
                 </div>
               )}
