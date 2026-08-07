@@ -7,7 +7,7 @@ import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
 import AdminPortal from './components/AdminPortal';
 import ClientDashboard from './components/ClientDashboard';
-import { API_BASE } from './config';
+import { API_BASE, SESSION_MAX_MS } from './config';
 
 const SESSION_KEY = 'tf_session';
 
@@ -28,6 +28,7 @@ function AppRoutes() {
   // Global language state shared across all pages
   const [lang, setLang] = useState('EN');
   const [restoringSession, setRestoringSession] = useState(true);
+  const [expiryNotice, setExpiryNotice] = useState(false);
 
   // On first load, restore a valid persisted session so a refresh
   // keeps the user logged in instead of bouncing back to the home page.
@@ -44,6 +45,12 @@ function AppRoutes() {
       return;
     }
     if (!saved || !saved.email || !saved.token) {
+      sessionStorage.removeItem(SESSION_KEY);
+      setRestoringSession(false);
+      return;
+    }
+    // Enforce the session age: after SESSION_MAX_MS the user must sign in again.
+    if (!saved.loginAt || Date.now() - saved.loginAt >= SESSION_MAX_MS) {
       sessionStorage.removeItem(SESSION_KEY);
       setRestoringSession(false);
       return;
@@ -77,7 +84,7 @@ function AppRoutes() {
   const handleVerified = (email, buyingPower, token) => {
     broker.setSession(email, token);
     if (buyingPower != null) broker.hydrateWalletBalance(buyingPower);
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, token }));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ email, token, loginAt: Date.now() }));
     navigate('/portal');
   };
 
@@ -97,6 +104,23 @@ function AppRoutes() {
     navigate('/');
   };
 
+  // Auto sign-out once the session is older than SESSION_MAX_MS, even while
+  // the tab stays open — the user must log in again after a while.
+  useEffect(() => {
+    if (!broker.isAuthenticated) return;
+    const checkExpiry = () => {
+      let saved;
+      try { saved = JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { saved = null; }
+      if (saved && saved.loginAt && Date.now() - saved.loginAt >= SESSION_MAX_MS) {
+        handleLogOut();
+        setExpiryNotice(true);
+      }
+    };
+    const timer = setInterval(checkExpiry, 30000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [broker.isAuthenticated]);
+
   if (restoringSession) {
     return (
       <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f172a' }}>
@@ -111,6 +135,12 @@ function AppRoutes() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+      {expiryNotice && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, background: 'rgba(234, 179, 8, 0.95)', color: '#0f172a', padding: '10px 16px', textAlign: 'center', fontSize: '12px', fontWeight: '700', display: 'flex', justifyContent: 'center', gap: '12px', alignItems: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+          <span>Your session has expired. Please sign in again.</span>
+          <button onClick={() => setExpiryNotice(false)} style={{ background: 'transparent', border: '1px solid rgba(15, 23, 42, 0.4)', color: '#0f172a', borderRadius: '4px', padding: '3px 12px', fontWeight: '800', cursor: 'pointer', fontSize: '11px' }}>OK</button>
+        </div>
+      )}
       <Routes>
         <Route path="/" element={<MarketingHome lang={lang} setLang={setLang} onNavigate={handleNavigate} />} />
         <Route path="/about" element={<AboutPage lang={lang} setLang={setLang} onNavigate={handleNavigate} />} />
