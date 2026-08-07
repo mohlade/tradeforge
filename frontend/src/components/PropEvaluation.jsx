@@ -1,15 +1,17 @@
 import React from 'react';
 import translations from '../i18n/translations';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function PropEvaluation({ equity, totalDeposited, onProceedToTerminal, lang }) {
   const t = translations[lang || 'EN'].eval;
+  const isMobile = useMediaQuery('(max-width: 820px)');
   const profitTarget = 10000.00;
   const currentProfit = Math.max(0, equity - totalDeposited);
   const completionPercentage = Math.min(100, (currentProfit / profitTarget) * 100);
 
   return (
-    <div style={{ background: 'radial-gradient(circle at center, rgba(30, 41, 59, 0.8) 0%, #0f172a 80%)', minHeight: '100vh', color: '#f8fafc', padding: '40px 20px', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="glass-card" style={{ maxWidth: '680px', width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.08)', padding: '40px', boxShadow: '0 20px 50px -10px rgba(0,0,0,0.6)' }}>
+    <div style={{ background: 'radial-gradient(circle at center, rgba(30, 41, 59, 0.8) 0%, #0f172a 80%)', minHeight: '100vh', color: '#f8fafc', padding: isMobile ? '16px 12px' : '40px 20px', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="glass-card" style={{ maxWidth: '680px', width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.08)', padding: isMobile ? '24px 18px' : '40px', boxShadow: '0 20px 50px -10px rgba(0,0,0,0.6)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '18px', marginBottom: '25px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

@@ -425,7 +425,7 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
                 <div style={{ gridColumn: '1 / -1', background: '#0b0f19', padding: '22px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div style={{ fontSize: '11px', color: '#eab308', fontWeight: '800', letterSpacing: '1px', marginBottom: '18px' }}>🔑 {t.profilePasswordTitle}</div>
                   <form onSubmit={handleChangePassword}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '18px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginBottom: '18px' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', color: '#64748b', fontWeight: '800', marginBottom: '5px' }}>{t.profileCurrentPass}</label>
                         <input type="password" required value={passForm.current} onChange={e => setPassForm({ ...passForm, current: e.target.value })} style={profileInputStyle} />

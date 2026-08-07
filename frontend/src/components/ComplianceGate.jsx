@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import translations from '../i18n/translations';
 import LangToggle from './LangToggle';
 import { API_BASE } from '../config';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function ComplianceGate({ onVerified, lang, setLang }) {
   const [authMode, setAuthMode] = useState('LOGIN');
   const [registerStep, setRegisterStep] = useState(1);
+  const isMobile = useMediaQuery('(max-width: 820px)');
   const [formData, setFormData] = useState({
     email: '', 
     password: '', 
@@ -102,9 +104,9 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
   };
 
   return (
-    <div style={{ display: 'flex', width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, rgba(30, 41, 59, 0.8) 0%, #0f172a 75%)', padding: '20px', position: 'fixed', left: 0, top: 0, zIndex: 1000, boxSizing: 'border-box', overflowY: 'auto' }}>
+    <div style={{ display: 'flex', width: '100vw', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, rgba(30, 41, 59, 0.8) 0%, #0f172a 75%)', padding: isMobile ? '12px' : '20px', position: 'fixed', left: 0, top: 0, zIndex: 1000, boxSizing: 'border-box', overflowY: 'auto' }}>
       
-      <div className="glass-card" style={{ maxWidth: '450px', width: '100%', padding: '38px 32px', background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: '0 20px 50px -10px rgba(0,0,0,0.6)' }}>
+      <div className="glass-card" style={{ maxWidth: '450px', width: '100%', padding: isMobile ? '26px 18px' : '38px 32px', background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: '0 20px 50px -10px rgba(0,0,0,0.6)' }}>
         
         {/* Lang Toggle Top Right */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
@@ -179,11 +181,11 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
               ].map((step, i) => (
                 <React.Fragment key={step.num}>
                   {i > 0 && <div style={{ flex: 1, height: '2px', background: registerStep > i ? '#eab308' : 'rgba(255,255,255,0.1)', borderRadius: '2px' }} />}
-                  <div style={{ textAlign: 'center', width: '52px' }}>
+                  <div style={{ textAlign: 'center', width: isMobile ? '34px' : '52px' }}>
                     <div style={{ width: '24px', height: '24px', margin: '0 auto 3px auto', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '800', background: registerStep === step.num ? '#eab308' : registerStep > step.num ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)', color: registerStep === step.num ? '#0f172a' : registerStep > step.num ? '#10b981' : '#64748b', border: registerStep === step.num ? '1px solid #eab308' : registerStep > step.num ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.12)' }}>
                       {registerStep > step.num ? '✓' : step.num}
                     </div>
-                    <div style={{ fontSize: '8px', color: registerStep === step.num ? '#eab308' : '#64748b', fontWeight: '700', letterSpacing: '0.3px' }}>{step.label}</div>
+                    <div style={{ fontSize: isMobile ? '7px' : '8px', color: registerStep === step.num ? '#eab308' : '#64748b', fontWeight: '700', letterSpacing: '0.3px' }}>{step.label}</div>
                   </div>
                 </React.Fragment>
               ))}
@@ -211,7 +213,7 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
               {/* STEP 2 — IDENTITY */}
               {registerStep === 2 && (
                 <div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: '700', marginBottom: '4px' }}>{t.labelFirstName}</label>
                       <input type="text" required value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} style={inputStyle} />
@@ -221,7 +223,7 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
                       <input type="text" required value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} style={inputStyle} />
                     </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.4fr 1fr', gap: '12px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: '700', marginBottom: '4px' }}>{t.labelDOB}</label>
                       <input type="date" required value={formData.date_of_birth} onChange={e => setFormData({...formData, date_of_birth: e.target.value})} style={inputStyle} />
@@ -245,7 +247,7 @@ export default function ComplianceGate({ onVerified, lang, setLang }) {
                     <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: '700', marginBottom: '4px' }}>{t.labelAddress}</label>
                     <input type="text" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={inputStyle} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.6fr 1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: '700', marginBottom: '4px' }}>{t.labelCountry}</label>
                       <input type="text" required value={formData.country} onChange={e => setFormData({...formData, country: e.target.value})} style={inputStyle} />

@@ -307,15 +307,15 @@ export default function AdminPortal({ onNavigate, brokerState }) {
     <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', color: '#f8fafc', padding: isMobile ? '20px 14px' : '30px 40px', boxSizing: 'border-box' }}>
       
       {/* Top Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '20px', marginBottom: '30px' }}>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', gap: '14px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '20px', marginBottom: '30px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <img src="/tradeforge_logo.png" alt="Logo" style={{ width: '40px', height: '40px', borderRadius: '10px', boxShadow: '0 0 15px rgba(234, 179, 8, 0.25)' }} />
           <div>
-            <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.5px' }}>TradeForge Admin Portal</h2>
+            <h2 style={{ margin: 0, fontSize: isMobile ? '18px' : '22px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.5px' }}>TradeForge Admin Portal</h2>
             <span style={{ fontSize: '11px', color: '#eab308', fontWeight: '700' }}>CUSTOMER ACCOUNTS & WITHDRAWAL MANAGEMENT DECK</span>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           {isAdminAuthenticated && (
             <button onClick={handleAdminLogout} style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.35)', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '12px' }}>
               🚪 Log Out
@@ -389,7 +389,7 @@ export default function AdminPortal({ onNavigate, brokerState }) {
           )}
 
           {/* Navigation Tabs */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '25px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '25px', flexWrap: 'wrap' }}>
             <button 
               onClick={() => setActiveTab('CUSTOMERS')} 
               style={{ padding: '12px 24px', background: activeTab === 'CUSTOMERS' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 255, 255, 0.05)', color: activeTab === 'CUSTOMERS' ? '#eab308' : '#94a3b8', border: activeTab === 'CUSTOMERS' ? '1px solid #eab308' : '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', cursor: 'pointer', fontWeight: '800', fontSize: '13px' }}>
@@ -411,9 +411,9 @@ export default function AdminPortal({ onNavigate, brokerState }) {
           {activeTab === 'CUSTOMERS' && (
             <div className="glass-card" style={{ padding: '30px', background: 'rgba(15, 23, 42, 0.95)' }}>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', gap: '14px', marginBottom: '20px' }}>
                 <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>CUSTOMER ACCOUNTS & BALANCE OVERRIDE</h3>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px', alignItems: isMobile ? 'stretch' : 'center', width: isMobile ? '100%' : 'auto' }}>
                   <button onClick={() => setIsCreateModalOpen(true)} className="glow-btn-primary" style={{ padding: '10px 18px', fontSize: '12px' }}>
                     ＋ Create New Account
                   </button>
@@ -492,8 +492,8 @@ export default function AdminPortal({ onNavigate, brokerState }) {
 
               {/* INLINE MODAL FOR EDITING CUSTOMER BALANCE */}
               {selectedUser && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div className="glass-card" style={{ background: '#0b0f19', padding: '30px', borderRadius: '14px', maxWidth: '420px', width: '100%', border: '1px solid #eab308' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+                  <div className="glass-card" style={{ background: '#0b0f19', padding: isMobile ? '24px' : '30px', borderRadius: '14px', maxWidth: '420px', width: '100%', border: '1px solid #eab308' }}>
                     <h3 style={{ margin: '0 0 10px 0', color: '#fff', fontSize: '17px', fontWeight: '800' }}>Edit Customer Balance</h3>
                     <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 20px 0' }}>Updating balance for: <strong style={{ color: '#fff' }}>{selectedUser}</strong></p>
                     
@@ -527,8 +527,8 @@ export default function AdminPortal({ onNavigate, brokerState }) {
 
               {/* CREATE CUSTOMER ACCOUNT MODAL */}
               {isCreateModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <form onSubmit={handleCreateAccount} className="glass-card" style={{ background: '#0b0f19', padding: '32px', borderRadius: '14px', maxWidth: '460px', width: '100%', border: '1px solid #eab308', maxHeight: '90vh', overflowY: 'auto' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+                  <form onSubmit={handleCreateAccount} className="glass-card" style={{ background: '#0b0f19', padding: isMobile ? '24px 18px' : '32px', borderRadius: '14px', maxWidth: '460px', width: '100%', border: '1px solid #eab308', maxHeight: '90vh', overflowY: 'auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                       <h3 style={{ margin: 0, color: '#fff', fontSize: '17px', fontWeight: '800' }}>＋ Create Customer Account</h3>
                       <button type="button" onClick={() => setIsCreateModalOpen(false)} style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '20px', cursor: 'pointer', fontWeight: '800' }}>✕</button>
@@ -591,8 +591,8 @@ export default function AdminPortal({ onNavigate, brokerState }) {
 
               {/* APPROVE & FUND PENDING ACCOUNT MODAL */}
               {approveUser && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <form onSubmit={handleApproveUser} className="glass-card" style={{ background: '#0b0f19', padding: '30px', borderRadius: '14px', maxWidth: '420px', width: '100%', border: '1px solid #10b981' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+                  <form onSubmit={handleApproveUser} className="glass-card" style={{ background: '#0b0f19', padding: isMobile ? '24px' : '30px', borderRadius: '14px', maxWidth: '420px', width: '100%', border: '1px solid #10b981' }}>
                     <h3 style={{ margin: '0 0 10px 0', color: '#fff', fontSize: '17px', fontWeight: '800' }}>✓ Approve & Fund Account</h3>
                     <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 20px 0' }}>
                       Granting portal access to: <strong style={{ color: '#fff' }}>{approveUser}</strong><br />
@@ -643,7 +643,7 @@ export default function AdminPortal({ onNavigate, brokerState }) {
                     </div>
 
                     {/* Overview cards */}
-                    <div style={{ padding: '24px 28px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
+                    <div style={{ padding: '24px 28px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '14px' }}>
                       <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '10px', padding: '16px' }}>
                         <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>WALLET BALANCE</div>
                         <div className="mono-font" style={{ fontSize: '20px', fontWeight: '800', color: '#10b981', marginTop: '4px' }}>${viewAccount.user.cash_balance.toLocaleString('en-US', {minimumFractionDigits: 2})} USDT</div>
@@ -803,7 +803,7 @@ export default function AdminPortal({ onNavigate, brokerState }) {
               <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>LIVE MARKET TICKER PRICE CONTROLLER</h3>
               <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 25px 0' }}>Manually override live market prices. Connected trading monitors will update rates instantly.</p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px' }}>
                 {Object.keys(brokerState ? brokerState.marketRates : {}).map(symbol => {
                   const currentRate = brokerState.marketRates[symbol];
                   return (

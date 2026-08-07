@@ -198,7 +198,7 @@ export default function MarketingHome({ onNavigate, lang, setLang }) {
       </div>
 
       {/* Footer */}
-      <footer style={{ background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '40px 60px', color: '#64748b', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <footer style={{ background: '#0b0f19', borderTop: '1px solid rgba(255,255,255,0.06)', padding: isMobile ? '24px 20px' : '40px 60px', color: '#64748b', fontSize: '12px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/tradeforge_logo.png" alt="Logo" style={{ width: '24px', height: '24px', borderRadius: '4px' }} />
           <span>{t.footerCopy}</span>
