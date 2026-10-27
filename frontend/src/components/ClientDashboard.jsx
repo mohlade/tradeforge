@@ -6,6 +6,21 @@ import translations from '../i18n/translations';
 import useMediaQuery from '../hooks/useMediaQuery';
 import { API_BASE } from '../config';
 
+const getPayoutActionMessage = (failureReason, t) => {
+  if (!failureReason) return null;
+  const reason = failureReason.toLowerCase();
+  if (reason.includes('valid trc-20') || reason.includes('address')) {
+    return t.payoutActionInvalid;
+  }
+  if (reason.includes('exceeds') || reason.includes('limit')) {
+    return t.payoutActionInvalid;
+  }
+  if (reason.includes('provider') || reason.includes('4021')) {
+    return t.payoutActionProvider;
+  }
+  return t.payoutActionInvalid;
+};
+
 export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
   const isMobile = useMediaQuery('(max-width: 820px)');
   const [activeClientTab, setActiveClientTab] = useState('OVERVIEW');
@@ -193,7 +208,7 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
               <div className="glass-card" style={{ padding: '25px', marginBottom: '30px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>{t.withdrawalsTitle}</h3>
                 {myWithdrawals.some(w => w.payout_status === 'FAILED') && (
-                  <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', color: '#fca5a5', borderRadius: '8px', padding: '10px 12px', fontSize: '11px', fontWeight: '700', marginBottom: '14px', lineHeight: 1.5 }}>
+                  <div style={{ background: 'rgba(234,179,8,0.12)', border: '1px solid rgba(234,179,8,0.4)', color: '#f59e0b', borderRadius: '8px', padding: '10px 12px', fontSize: '11px', fontWeight: '700', marginBottom: '14px', lineHeight: 1.5 }}>
                     ⚠ {t.payoutFailedBanner}
                   </div>
                 )}
@@ -215,14 +230,28 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
                         <td className="mono-font" style={{ padding: '12px 10px', color: '#cbd5e1', fontSize: '11px' }}>{w.address}</td>
                         <td style={{ padding: '12px 10px', color: '#64748b', fontSize: '11px' }}>{w.created_at || 'Today'}</td>
                         <td style={{ padding: '12px 10px', textAlign: 'right' }}>
-                          <span style={{ background: w.status === 'APPROVED' ? 'rgba(16,185,129,0.15)' : w.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)', color: w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308', border: `1px solid ${w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308'}`, padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
-                            {w.status}
-                          </span>
-                          {w.payout_status === 'FAILED' && (
-                            <div style={{ color: '#f87171', fontSize: '10px', marginTop: '6px', maxWidth: '240px', marginLeft: 'auto', lineHeight: 1.5 }}>
-                              <strong>{t.payoutFailedLead}</strong> {w.failure_reason}
-                              <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
-                            </div>
+                          {w.payout_status === 'FAILED' ? (
+                            <>
+                              <span style={{ background: 'rgba(234,179,8,0.15)', color: '#eab308', border: '1px solid #eab308', padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                                {t.payoutPendingAction || 'PENDING — ACTION REQUIRED'}
+                              </span>
+                              <div style={{ color: '#f59e0b', fontSize: '10px', marginTop: '6px', maxWidth: '260px', marginLeft: 'auto', lineHeight: 1.5 }}>
+                                {getPayoutActionMessage(w.failure_reason, t)}
+                                <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <span style={{ background: w.status === 'APPROVED' ? 'rgba(16,185,129,0.15)' : w.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)', color: w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308', border: `1px solid ${w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308'}`, padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                                {w.status}
+                              </span>
+                              {w.payout_status === 'FAILED' && (
+                                <div style={{ color: '#f87171', fontSize: '10px', marginTop: '6px', maxWidth: '240px', marginLeft: 'auto', lineHeight: 1.5 }}>
+                                  <strong>{t.payoutFailedLead}</strong> {w.failure_reason}
+                                  <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
+                                </div>
+                              )}
+                            </>
                           )}
                         </td>
                       </tr>
@@ -329,14 +358,28 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
                         <td className="mono-font" style={{ padding: '14px 12px', color: '#cbd5e1', fontSize: '11px' }}>{w.address}</td>
                         <td style={{ padding: '14px 12px', color: '#64748b', fontSize: '11px' }}>{w.created_at || 'Today'}</td>
                         <td style={{ padding: '14px 12px', textAlign: 'right' }}>
-                          <span style={{ background: w.status === 'APPROVED' ? 'rgba(16,185,129,0.15)' : w.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)', color: w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308', border: `1px solid ${w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308'}`, padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
-                            {w.status}
-                          </span>
-                          {w.payout_status === 'FAILED' && (
-                            <div style={{ color: '#f87171', fontSize: '10px', marginTop: '6px', maxWidth: '240px', marginLeft: 'auto', lineHeight: 1.5 }}>
-                              <strong>{t.payoutFailedLead}</strong> {w.failure_reason}
-                              <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
-                            </div>
+                          {w.payout_status === 'FAILED' ? (
+                            <>
+                              <span style={{ background: 'rgba(234,179,8,0.15)', color: '#eab308', border: '1px solid #eab308', padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                                {t.payoutPendingAction || 'PENDING — ACTION REQUIRED'}
+                              </span>
+                              <div style={{ color: '#f59e0b', fontSize: '10px', marginTop: '6px', maxWidth: '260px', marginLeft: 'auto', lineHeight: 1.5 }}>
+                                {getPayoutActionMessage(w.failure_reason, t)}
+                                <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <span style={{ background: w.status === 'APPROVED' ? 'rgba(16,185,129,0.15)' : w.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)', color: w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308', border: `1px solid ${w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308'}`, padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
+                                {w.status}
+                              </span>
+                              {w.payout_status === 'FAILED' && (
+                                <div style={{ color: '#f87171', fontSize: '10px', marginTop: '6px', maxWidth: '240px', marginLeft: 'auto', lineHeight: 1.5 }}>
+                                  <strong>{t.payoutFailedLead}</strong> {w.failure_reason}
+                                  <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
+                                </div>
+                              )}
+                            </>
                           )}
                         </td>
                       </tr>
