@@ -262,10 +262,10 @@ export default function AdminPortal({ onNavigate, brokerState }) {
       const result = await res.json();
       if (!res.ok) throw new Error(result.detail || 'Failed to process withdrawal action');
 
-      setUpdateMessage(`✅ Withdrawal #${withdrawalId} ${actionStatus}`);
+      setUpdateMessage(`${result.payout_status === 'FAILED' ? '⚠️' : '✅'} ${result.message}`);
       fetchWithdrawalsList();
       fetchUsersList();
-      setTimeout(() => setUpdateMessage(''), 4000);
+      setTimeout(() => setUpdateMessage(''), 7000);
     } catch (err) {
       alert(`Error processing withdrawal: ${err.message}`);
     }
@@ -716,6 +716,9 @@ export default function AdminPortal({ onNavigate, brokerState }) {
                                 <td className="mono-font" style={{ padding: '10px 8px', color: '#cbd5e1', fontSize: '10px' }}>{w.address}</td>
                                 <td style={{ padding: '10px 8px', textAlign: 'right' }}>
                                   <span style={{ background: w.status === 'APPROVED' ? 'rgba(16,185,129,0.15)' : w.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)', color: w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308', padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>{w.status}</span>
+                                  {w.payout_status === 'FAILED' && (
+                                    <div style={{ color: '#f87171', fontSize: '9px', marginTop: '4px', maxWidth: '200px', marginLeft: 'auto', lineHeight: 1.4 }}>⚠ {w.failure_reason}</div>
+                                  )}
                                 </td>
                               </tr>
                             ))}
@@ -774,6 +777,11 @@ export default function AdminPortal({ onNavigate, brokerState }) {
                           }}>
                             {item.status}
                           </span>
+                          {item.payout_status === 'FAILED' && (
+                            <div style={{ color: '#f87171', fontSize: '10px', marginTop: '5px', maxWidth: '240px', lineHeight: 1.5 }}>
+                              ⚠ {item.failure_reason}
+                            </div>
+                          )}
                         </td>
                         <td style={{ padding: '14px 12px', textAlign: 'right' }}>
                           {item.status === 'PENDING' ? (

@@ -470,10 +470,15 @@ def get_all_withdrawals(_admin: dict = Depends(require_admin)):
 
 @app.post("/api/admin/withdrawals/action")
 def update_withdrawal_action(payload: WithdrawalActionSchema, _admin: dict = Depends(require_admin)):
-    success, msg = database.update_withdrawal_status(payload.withdrawal_id, payload.status)
+    success, msg, meta = database.update_withdrawal_status(payload.withdrawal_id, payload.status)
     if not success:
         raise HTTPException(status_code=400, detail=msg)
-    return {"status": "success", "message": f"Withdrawal #{payload.withdrawal_id} {payload.status}."}
+    return {
+        "status": "success",
+        "message": msg,
+        "withdrawal_id": payload.withdrawal_id,
+        **meta,
+    }
 
 @app.get("/api/admin/rates")
 def get_market_rates(_admin: dict = Depends(require_admin)):

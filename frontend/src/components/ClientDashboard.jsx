@@ -192,6 +192,11 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
             {myWithdrawals.length > 0 && (
               <div className="glass-card" style={{ padding: '25px', marginBottom: '30px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>{t.withdrawalsTitle}</h3>
+                {myWithdrawals.some(w => w.payout_status === 'FAILED') && (
+                  <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', color: '#fca5a5', borderRadius: '8px', padding: '10px 12px', fontSize: '11px', fontWeight: '700', marginBottom: '14px', lineHeight: 1.5 }}>
+                    ⚠ {t.payoutFailedBanner}
+                  </div>
+                )}
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#64748b', fontSize: '11px' }}>
@@ -213,6 +218,12 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
                           <span style={{ background: w.status === 'APPROVED' ? 'rgba(16,185,129,0.15)' : w.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)', color: w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308', border: `1px solid ${w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308'}`, padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
                             {w.status}
                           </span>
+                          {w.payout_status === 'FAILED' && (
+                            <div style={{ color: '#f87171', fontSize: '10px', marginTop: '6px', maxWidth: '240px', marginLeft: 'auto', lineHeight: 1.5 }}>
+                              <strong>{t.payoutFailedLead}</strong> {w.failure_reason}
+                              <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -321,6 +332,12 @@ export default function ClientDashboard({ broker, onLogOut, lang, setLang }) {
                           <span style={{ background: w.status === 'APPROVED' ? 'rgba(16,185,129,0.15)' : w.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(234,179,8,0.15)', color: w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308', border: `1px solid ${w.status === 'APPROVED' ? '#10b981' : w.status === 'REJECTED' ? '#ef4444' : '#eab308'}`, padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' }}>
                             {w.status}
                           </span>
+                          {w.payout_status === 'FAILED' && (
+                            <div style={{ color: '#f87171', fontSize: '10px', marginTop: '6px', maxWidth: '240px', marginLeft: 'auto', lineHeight: 1.5 }}>
+                              <strong>{t.payoutFailedLead}</strong> {w.failure_reason}
+                              <div style={{ color: '#94a3b8', marginTop: '2px' }}>{t.payoutNotDebited}</div>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}

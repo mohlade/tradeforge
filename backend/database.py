@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import re
 import time
 import hashlib
 import secrets
@@ -18,6 +19,14 @@ except ImportError:
     HAS_TURSO = False
 
 USE_TURSO = bool(HAS_TURSO and TURSO_DATABASE_URL and TURSO_AUTH_TOKEN)
+
+# ---- Payout simulation settings -------------------------------------------
+# Withdrawals are simulated: no real USDT ever leaves the platform. Approval
+# attempts a payout and records the outcome so the UI can exercise both the
+# success and the failure paths.
+PAYOUT_DAILY_LIMIT = float(os.getenv("PAYOUT_DAILY_LIMIT", "10000"))
+PAYOUT_PROVIDER_AVAILABLE = os.getenv("PAYOUT_PROVIDER_AVAILABLE", "0").lower() in ("1", "true", "yes")
+TRC20_ADDRESS_RE = re.compile(r"^T[1-9A-HJ-NP-Za-km-z]{33}$")
 
 def _writable_db_path():
     try:
@@ -93,9 +102,23 @@ def init_db():
         amount REAL NOT NULL,
         address TEXT NOT NULL,
         status TEXT DEFAULT 'PENDING',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        payout_status TEXT,
+        failure_reason TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        processed_at TIMESTAMP
     )
     """)
+
+    # Migration: add payout outcome columns to existing databases
+    cursor.execute("PRAGMA table_info(withdrawals)")
+    withdrawal_columns = [row["name"] for row in cursor.fetchall()]
+    for col, col_type in {
+        "payout_status": "TEXT",
+        "failure_reason": "TEXT",
+        "processed_at": "TIMESTAMP",
+    }.items():
+        if col not in withdrawal_columns:
+            cursor.execute(f"ALTER TABLE withdrawals ADD COLUMN {col} {col_type}")
 
     # 3. Trade History Table
     cursor.execute("""
@@ -305,37 +328,81 @@ def get_pending_withdrawal_sum(user_email):
     conn.close()
     return row["total"] if row else 0.0
 
+def _attempt_payout(address, amount):
+    """Simulate a TRC-20 USDT payout.
+
+    Returns ``None`` when the payout succeeds, otherwise a human-readable
+    failure reason. The checks mirror the most common real payout failures so
+    the app can exercise its error handling without any real funds moving.
+    """
+    address = (address or "").strip()
+    if not TRC20_ADDRESS_RE.match(address):
+        return "The destination address is not a valid TRC-20 wallet address."
+    if amount > PAYOUT_DAILY_LIMIT:
+        return f"The payout exceeds the ${PAYOUT_DAILY_LIMIT:,.0f} per-request payout limit."
+    if not PAYOUT_PROVIDER_AVAILABLE:
+        return "The USDT payout provider rejected the transfer (provider code 4021)."
+    return None
+
 def update_withdrawal_status(withdrawal_id, status):
     if status not in ("APPROVED", "REJECTED"):
-        return False, "Invalid withdrawal status."
+        return False, "Invalid withdrawal status.", {}
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM withdrawals WHERE id = ?", (withdrawal_id,))
     w = cursor.fetchone()
     if not w:
         conn.close()
-        return False, "Withdrawal not found."
+        return False, "Withdrawal not found.", {}
 
     # Only PENDING requests can be processed, so re-processing an already
     # approved/rejected withdrawal cannot double-deduct the customer balance.
     if w["status"] != "PENDING":
         conn.close()
-        return False, f"Withdrawal #{withdrawal_id} has already been processed."
+        return False, f"Withdrawal #{withdrawal_id} has already been processed.", {}
 
     w_dict = dict(w)
-    cursor.execute("UPDATE withdrawals SET status = ? WHERE id = ?", (status, withdrawal_id))
 
-    # If approved, deduct customer balance
-    if status == 'APPROVED':
-        cursor.execute("SELECT cash_balance FROM users WHERE email = ?", (w_dict["user_email"],))
-        u = cursor.fetchone()
-        if u:
-            new_bal = max(0, u["cash_balance"] - w_dict["amount"])
-            cursor.execute("UPDATE users SET cash_balance = ? WHERE email = ?", (new_bal, w_dict["user_email"]))
+    if status == "REJECTED":
+        cursor.execute(
+            "UPDATE withdrawals SET status = ?, processed_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (status, withdrawal_id)
+        )
+        conn.commit()
+        conn.close()
+        return True, f"Withdrawal #{withdrawal_id} rejected. No funds were deducted.", {"payout_status": None}
+
+    # Approval → attempt the payout. If it fails the balance is left untouched
+    # and the reason is stored so the customer can see why nothing was sent.
+    failure_reason = _attempt_payout(w_dict["address"], w_dict["amount"])
+    if failure_reason:
+        cursor.execute(
+            "UPDATE withdrawals SET status = 'APPROVED', payout_status = 'FAILED', "
+            "failure_reason = ?, processed_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (failure_reason, withdrawal_id)
+        )
+        conn.commit()
+        conn.close()
+        return True, (
+            f"Withdrawal #{withdrawal_id} approved, but the payout failed. "
+            f"{failure_reason} Your balance was not debited."
+        ), {"payout_status": "FAILED", "failure_reason": failure_reason}
+
+    # Payout succeeded → deduct the customer balance exactly once.
+    cursor.execute("SELECT cash_balance FROM users WHERE email = ?", (w_dict["user_email"],))
+    u = cursor.fetchone()
+    if u:
+        new_bal = max(0, u["cash_balance"] - w_dict["amount"])
+        cursor.execute("UPDATE users SET cash_balance = ? WHERE email = ?", (new_bal, w_dict["user_email"]))
+    cursor.execute(
+        "UPDATE withdrawals SET status = 'APPROVED', payout_status = 'PAID', failure_reason = NULL, "
+        "processed_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (withdrawal_id,)
+    )
 
     conn.commit()
     conn.close()
-    return True, "Withdrawal updated."
+    return True, f"Withdrawal #{withdrawal_id} approved and paid.", {"payout_status": "PAID"}
 
 def get_trade_history(user_email):
     conn = get_connection()
