@@ -775,7 +775,7 @@ export default function AdminPortal({ onNavigate, brokerState }) {
                             border: `1px solid ${item.status === 'APPROVED' ? '#10b981' : item.status === 'REJECTED' ? '#ef4444' : '#eab308'}`, 
                             padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '800' 
                           }}>
-                            {item.status}
+                            {item.status === 'PENDING' && item.payout_status === 'FAILED' ? 'ACTION REQUIRED' : item.status}
                           </span>
                           {item.payout_status === 'FAILED' && (
                             <div style={{ color: '#f87171', fontSize: '10px', marginTop: '5px', maxWidth: '240px', lineHeight: 1.5 }}>
@@ -784,7 +784,16 @@ export default function AdminPortal({ onNavigate, brokerState }) {
                           )}
                         </td>
                         <td style={{ padding: '14px 12px', textAlign: 'right' }}>
-                          {item.status === 'PENDING' ? (
+                          {item.status === 'PENDING' && item.payout_status === 'FAILED' ? (
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                              <button onClick={() => handleWithdrawalAction(item.id, 'APPROVED')} className="glow-btn-primary" style={{ padding: '6px 12px', fontSize: '11px' }}>
+                                ✓ Approve & Clear
+                              </button>
+                              <button onClick={() => handleWithdrawalAction(item.id, 'REJECTED')} style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px' }}>
+                                ✕ Reject
+                              </button>
+                            </div>
+                          ) : item.status === 'PENDING' ? (
                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                               <button onClick={() => handleWithdrawalAction(item.id, 'APPROVED')} className="glow-btn-primary" style={{ padding: '6px 12px', fontSize: '11px' }}>
                                 ✓ Approve

@@ -355,15 +355,12 @@ def update_withdrawal_status(withdrawal_id, status):
         conn.close()
         return False, "Withdrawal not found.", {}
 
-    # Only PENDING requests can be processed, so re-processing an already
-    # approved/rejected withdrawal cannot double-deduct the customer balance.
-    if w["status"] != "PENDING":
-        conn.close()
-        return False, f"Withdrawal #{withdrawal_id} has already been processed.", {}
-
     w_dict = dict(w)
 
     if status == "REJECTED":
+        if w_dict["status"] != "PENDING":
+            conn.close()
+            return False, f"Withdrawal #{withdrawal_id} has already been processed.", {}
         cursor.execute(
             "UPDATE withdrawals SET status = ?, processed_at = CURRENT_TIMESTAMP WHERE id = ?",
             (status, withdrawal_id)
@@ -372,37 +369,53 @@ def update_withdrawal_status(withdrawal_id, status):
         conn.close()
         return True, f"Withdrawal #{withdrawal_id} rejected. No funds were deducted.", {"payout_status": None}
 
-    # Approval → attempt the payout. If it fails the balance is left untouched
-    # and the reason is stored so the customer can see why nothing was sent.
-    failure_reason = _attempt_payout(w_dict["address"], w_dict["amount"])
-    if failure_reason:
+    if status == "APPROVED":
+        # Second approval: first attempt failed and is awaiting admin clearance
+        if w_dict["status"] == "PENDING" and w_dict.get("payout_status") == "FAILED":
+            cursor.execute(
+                "UPDATE withdrawals SET status = 'APPROVED', payout_status = 'APPROVED', failure_reason = NULL, "
+                "processed_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (withdrawal_id,)
+            )
+            conn.commit()
+            conn.close()
+            return True, f"Withdrawal #{withdrawal_id} approved after review and cleared for payout.", {"payout_status": "APPROVED"}
+
+        if w_dict["status"] != "PENDING":
+            conn.close()
+            return False, f"Withdrawal #{withdrawal_id} has already been processed.", {}
+
+        # First approval: attempt payout
+        failure_reason = _attempt_payout(w_dict["address"], w_dict["amount"])
+        if failure_reason:
+            cursor.execute(
+                "UPDATE withdrawals SET status = 'PENDING', payout_status = 'FAILED', "
+                "failure_reason = ?, processed_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (failure_reason, withdrawal_id)
+            )
+            conn.commit()
+            conn.close()
+            return True, (
+                f"Withdrawal #{withdrawal_id} requires action. "
+                f"{failure_reason} Your balance was not debited."
+            ), {"payout_status": "FAILED", "failure_reason": failure_reason}
+
+        # Payout succeeded -> deduct once
+        cursor.execute("SELECT cash_balance FROM users WHERE email = ?", (w_dict["user_email"],))
+        u = cursor.fetchone()
+        if u:
+            new_bal = max(0, u["cash_balance"] - w_dict["amount"])
+            cursor.execute("UPDATE users SET cash_balance = ? WHERE email = ?", (new_bal, w_dict["user_email"]))
         cursor.execute(
-            "UPDATE withdrawals SET status = 'APPROVED', payout_status = 'FAILED', "
-            "failure_reason = ?, processed_at = CURRENT_TIMESTAMP WHERE id = ?",
-            (failure_reason, withdrawal_id)
+            "UPDATE withdrawals SET status = 'APPROVED', payout_status = 'PAID', failure_reason = NULL, "
+            "processed_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (withdrawal_id,)
         )
         conn.commit()
         conn.close()
-        return True, (
-            f"Withdrawal #{withdrawal_id} approved, but the payout failed. "
-            f"{failure_reason} Your balance was not debited."
-        ), {"payout_status": "FAILED", "failure_reason": failure_reason}
+        return True, f"Withdrawal #{withdrawal_id} approved and paid.", {"payout_status": "PAID"}
 
-    # Payout succeeded → deduct the customer balance exactly once.
-    cursor.execute("SELECT cash_balance FROM users WHERE email = ?", (w_dict["user_email"],))
-    u = cursor.fetchone()
-    if u:
-        new_bal = max(0, u["cash_balance"] - w_dict["amount"])
-        cursor.execute("UPDATE users SET cash_balance = ? WHERE email = ?", (new_bal, w_dict["user_email"]))
-    cursor.execute(
-        "UPDATE withdrawals SET status = 'APPROVED', payout_status = 'PAID', failure_reason = NULL, "
-        "processed_at = CURRENT_TIMESTAMP WHERE id = ?",
-        (withdrawal_id,)
-    )
-
-    conn.commit()
-    conn.close()
-    return True, f"Withdrawal #{withdrawal_id} approved and paid.", {"payout_status": "PAID"}
+    return False, "Invalid withdrawal status.", {}
 
 def get_trade_history(user_email):
     conn = get_connection()
